@@ -102,6 +102,8 @@ nav a {
 
 .purchase-options {
     margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .uas-button,
