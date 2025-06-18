@@ -78,10 +78,14 @@ nav a {
 .product-card {
     background-color: #1e1e1e;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0;
     text-align: center;
     transition: transform 0.3s ease;
-    max-width: 22%; /*  Adiciona um limite de largura máxima para o card */
+    max-width: 320px; /*  Adiciona um limite de largura máxima para o card */
+}
+
+.product-card > div {
+    padding: 0 1rem 1rem 1rem
 }
 
 .product-card:hover {
@@ -90,8 +94,8 @@ nav a {
 
 .product-card img {
     width: 100%;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    border-radius: 0;
+    margin-bottom: 0;
     max-width: 320px; /*  Adiciona um limite de largura máxima para o card */
 }
 
