@@ -78,7 +78,7 @@ nav a {
 .product-card {
     background-color: #1e1e1e;
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 1rem;
     text-align: center;
     transition: transform 0.3s ease;
     max-width: 22%; /*  Adiciona um limite de largura máxima para o card */
@@ -168,8 +168,8 @@ footer {
     }
 }
 
-@media (min-width: 576px) {
+@media (max-width: 576px) {
     .product-card {
-        max-width: 22%; /*  Adiciona um limite de largura máxima para o card */
+        max-width: fit-content;
     }
 }
