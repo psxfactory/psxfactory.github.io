@@ -168,7 +168,7 @@ footer {
     }
 }
 
-@media (max-width: 576px) {
+@media (min-width: 576px) {
     .product-card {
         max-width: 22%; /*  Adiciona um limite de largura máxima para o card */
     }
