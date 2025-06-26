@@ -155,6 +155,12 @@ nav a {
     background-color: #952343; /* Lighter Pink */
 }
 
+.uas-button,
+.cgtrader-button,
+.gumroad-button {
+    background-color: #663399;
+}
+
 /* Footer */
 footer {
     background-color: #1e1e1e;
