@@ -1,4 +1,10 @@
 /* General Styles */
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
 body {
     font-family: sans-serif;
     margin: 0;
