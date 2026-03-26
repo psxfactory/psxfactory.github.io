@@ -651,7 +651,7 @@
         }
         .modal-close:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #000; }
 
-        /* 1. Header de Imagem Full Width */
+        /* 1. Header de Imagem Full Width + Fade Escuro */
         .modal-header-image { 
             width: 100%; height: 350px; background: #000; 
             position: relative; border-bottom: 2px solid var(--border-color); 
@@ -659,6 +659,28 @@
         .modal-header-image img { 
             width: 100%; height: 100%; object-fit: cover; 
             image-rendering: pixelated; filter: contrast(1.2); 
+        }
+        .modal-header-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
+        }
+
+        /* Título do produto centralizado/bottom na header */
+        .modal-header-title {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 2.5rem;
+            font-family: 'VT323', monospace;
+            font-size: 3rem;
+            color: #ffffff;
+            z-index: 2;
+            margin: 0;
+            text-shadow: 3px 3px 0px var(--accent-red), -2px -2px 0px var(--accent-blue);
+            line-height: 1;
         }
         
         /* 2. Conteúdo em Grid (Duas Colunas) */
@@ -680,23 +702,42 @@
         .markdown-render strong { color: var(--text-main); }
         .markdown-render blockquote { border-left: 4px solid var(--accent-blue); padding-left: 1.2rem; font-style: italic; color: var(--text-main); background: rgba(0, 56, 168, 0.1); padding: 1.2rem; margin-bottom: 2rem; }
 
-        /* 4. Coluna Direita Fixa */
+        /* 4. Coluna Direita Fixa com Thumbnail */
         .modal-right-col {
-            position: sticky; top: 0; display: flex; flex-direction: column; gap: 1rem;
-            background: var(--card-bg); padding: 2rem; border: 2px solid var(--border-color);
+            position: sticky; top: 0; display: flex; flex-direction: column;
+            background: var(--card-bg); border: 2px solid var(--border-color);
             align-self: start; /* Impede que a coluna estique no grid, permitindo o sticky funcionar */
+            overflow: hidden; /* Garante que a thumb encoste nas bordas perfeitas */
+            padding: 0; /* Removido o padding da coluna inteira */
+        }
+
+        .modal-right-thumb {
+            width: 100%;
+			height: auto;
+			max-height: 320px;
+            object-fit: contain; /* Conforme requisitado na lógica anterior */
+            background: #111;
+            border-bottom: 2px solid var(--border-color);
+            display: block;
+        }
+
+        .modal-right-body {
+            padding: 1.5rem; /* Padding aplicado apenas ao conteúdo textual */
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .modal-badges-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.5rem; }
         
-        .modal-right-col .modal-title { font-family: 'VT323', monospace; font-size: 2.2rem; color: var(--text-main); line-height: 1.1; margin-bottom: 0; }
+        .modal-right-body .modal-title { font-family: 'VT323', monospace; font-size: 1.8rem; color: var(--text-main); line-height: 1.1; margin-bottom: 0; }
         
         /* Correção do Preço no Modal (bug resolvido) */
         .modal-price-container { font-family: 'VT323', monospace; font-size: 2.5rem; color: var(--text-main); display: flex; align-items: center; gap: 15px; margin: 0.5rem 0 1rem 0; }
         .modal-price-container .old-price { font-size: 1.5rem; color: var(--accent-red); text-decoration: line-through; }
         .modal-price-container .sale { color: var(--accent-green); font-weight: bold; }
 
-        .modal-actions { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; border-top: 2px dashed var(--border-color); padding-top: 1.5rem; }
+        .modal-actions { display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem; border-top: 2px dashed var(--border-color); padding-top: 1.5rem; }
         .btn-modal { 
             width: 100%; text-align: center; padding: 1rem; font-family: 'VT323', monospace; 
             font-size: 1.5rem; text-transform: uppercase; cursor: pointer; transition: all 0.2s; 
@@ -736,6 +777,7 @@
             nav a { margin: 0; }
             .hero-slide { height: 250px; }
             .modal-header-image { height: 200px; }
+            .modal-header-title { font-size: 2rem; left: 1.5rem; bottom: 1rem; }
         }
     </style>
 </head>
@@ -940,7 +982,6 @@
         <div class="card">
             <div class="card-img-wrapper">
                 <div class="badge-container"><span class="type-badge">PACK</span></div>
-                <!-- DATA-MODAL-IMG ADICIONADO AQUI -->
                 <img src="https://i.imgur.com/dAGzPfj.jpeg" data-modal-img="https://i.imgur.com/JmrNdzY.png" loading="lazy" alt="Corporate Dread '95">
             </div>
             <div class="card-content">
@@ -1382,9 +1423,10 @@
         <div class="modal-window">
             <button class="modal-close" id="closeModalBtn">X</button>
             
-            <!-- HEADER DA IMAGEM CENTRALIZADA -->
+            <!-- HEADER DA IMAGEM CENTRALIZADA (COM TÍTULO E FADE) -->
             <div class="modal-header-image">
                 <img id="modalImg" src="" loading="lazy" alt="Product Preview">
+                <h2 class="modal-header-title" id="modalHeaderTitle">Product Title</h2>
             </div>
             
             <!-- GRID DE DUAS COLUNAS -->
@@ -1397,24 +1439,30 @@
                 
                 <!-- COLUNA DIREITA: INFORMAÇÕES PADRÕES E BOTÕES (FIXA) -->
                 <div class="modal-right-col">
-                    <div class="modal-badges-container" id="modalBadges"></div>
+                    <!-- THUMB ENCOSTADA NAS BORDAS SEM PADDING -->
+                    <img id="modalRightThumb" class="modal-right-thumb" src="" alt="Thumbnail">
                     
-                    <h2 class="modal-title" id="modalTitle">Product Title</h2>
-                    
-                    <div id="modalTags" class="category-tags" style="margin-top: 10px;"></div>
-                    
-                    <div class="modal-price-container" id="modalPrice">$0.00</div>
-                    
-                    <ul class="meta-info" id="modalMeta" style="margin-bottom: 1rem;"></ul>
-                    
-                    <div>
-                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform:uppercase; margin-bottom:5px; display:block;">Included Formats:</span>
-                        <div class="formats" id="modalFormats"></div>
-                    </div>
-                    
-                    <div class="modal-actions">
-                        <button class="btn-modal btn-buy">ADD TO CART // BUY</button>
-                        <button class="btn-modal btn-view">VIEW FULL PAGE</button>
+                    <!-- CORPO COM PADDING PARA OS TEXTOS -->
+                    <div class="modal-right-body">
+                        <div class="modal-badges-container" id="modalBadges"></div>
+                        
+                        <h2 class="modal-title" id="modalTitle">Product Title</h2>
+                        
+                        <div id="modalTags" class="category-tags" style="margin-top: 10px;"></div>
+                        
+                        <div class="modal-price-container" id="modalPrice">$0.00</div>
+                        
+                        <ul class="meta-info" id="modalMeta" style="margin-bottom: 1rem;"></ul>
+                        
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform:uppercase; margin-bottom:5px; display:block;">Included Formats:</span>
+                            <div class="formats" id="modalFormats"></div>
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button class="btn-modal btn-buy">ADD TO CART // BUY</button>
+                            <button class="btn-modal btn-view">VIEW FULL PAGE</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -1495,11 +1543,12 @@
                 const metaHtml = card.querySelector('.meta-info').innerHTML;
                 const formatsHtml = card.querySelector('.formats').innerHTML;
 
-                // Lógica de fallback para a imagem do header
+                // Lógica de imagens
                 const imgElement = card.querySelector('.card-img-wrapper img');
+                const cardThumbSrc = imgElement.src;
                 const modalImgSrc = imgElement.getAttribute('data-modal-img') || imgElement.src;
 
-                // Extração e limpeza dos badges (remover absolute para fluírem no container do modal)
+                // Extração e limpeza dos badges
                 const badgesNodeList = card.querySelectorAll('.status-badge, .type-badge');
                 let badgesHtml = '';
                 badgesNodeList.forEach(b => {
@@ -1515,9 +1564,13 @@
                     badgesHtml += clone.outerHTML;
                 });
 
-                // Preencher a coluna direita (informações e botões)
-                document.getElementById('modalTitle').innerText = title;
-                document.getElementById('modalImg').src = modalImgSrc; // Usa a imagem do data-attribute ou a miniatura
+                // Preencher o Header
+                document.getElementById('modalHeaderTitle').innerText = title;
+                document.getElementById('modalImg').src = modalImgSrc; // Alta resolução (se houver)
+
+                // Preencher a Coluna da Direita
+                document.getElementById('modalRightThumb').src = cardThumbSrc; // Sempre usa a miniatura original
+                document.getElementById('modalTitle').innerText = title; // Opcional: mantido na coluna conforme solicitado ("também apareça")
                 document.getElementById('modalPrice').innerHTML = priceHtml; 
                 document.getElementById('modalBadges').innerHTML = badgesHtml;
                 document.getElementById('modalTags').innerHTML = tagsHtml;
