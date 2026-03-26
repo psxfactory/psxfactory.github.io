@@ -1,57 +1,1589 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PSX Factory</title>
-    <link rel="stylesheet" href="style.css">
+    <title>PSX Factory | Retro 3D Assets & Packs</title>
+    
+    <!-- Retro Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables - Classic PS1 Theme */
+        :root {
+            --bg-color: #0c0d14;
+            --text-main: #e2e2e2;
+            --text-muted: #8b8f9e;
+            --accent-red: #e00024;
+            --accent-blue: #0038a8;
+            --accent-gold: #ffb700;
+            --accent-green: #00e676; 
+            --card-bg: #161822;
+            --border-color: #2a2d3e;
+            --input-bg: #0c0d14;
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --bg-color: #dfdfd6;
+            --text-main: #111111;
+            --text-muted: #444444;
+            --accent-red: #cc0020;
+            --accent-blue: #002b80;
+            --accent-gold: #daa82a;   
+            --accent-green: #46b546;  
+            --card-bg: #f4f4ed;
+            --border-color: #999999;
+            --input-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Mono', monospace;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            line-height: 1.6;
+            min-height: 100vh;
+            min-height: 100dvh; 
+        }
+
+        /* PREVENÇÃO DE SELEÇÃO NATIVA (DRAG FIX) */
+        .no-select, .hero-slider-track, .games-carousel, .card {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+
+        /* CRT Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            height: 100dvh; 
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.5;
+        }
+
+        /* Navbar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            border-bottom: 3px solid var(--accent-blue);
+            background-color: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'VT323', monospace;
+            font-size: 2.5rem;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px var(--accent-red), -2px -2px 0px var(--accent-blue);
+        }
+
+        nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        nav a:hover { color: var(--accent-red); }
+
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--text-main);
+            color: var(--text-main);
+            padding: 8px 16px;
+            font-family: 'VT323', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--accent-blue);
+            transition: all 0.1s;
+        }
+
+        .theme-toggle:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px var(--accent-blue);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem 2rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-family: 'VT323', monospace;
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            line-height: 1;
+            animation: chromatic-glitch 2s infinite;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Interactive Drag/Swipe Slider */
+        .hero-slider-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto 1rem auto;
+            border: 3px solid var(--accent-blue);
+            box-shadow: 8px 8px 0px var(--accent-red);
+            background: #000;
+        }
+
+        .hero-slider-track {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            cursor: grab;
+        }
+
+        .hero-slider-track:active { cursor: grabbing; }
+        .hero-slider-track::-webkit-scrollbar { display: none; }
+
+        .hero-slide {
+            flex: 0 0 100%;
+            height: 400px;
+            position: relative;
+            scroll-snap-align: center;
+            pointer-events: none;
+        }
+
+        .hero-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.2) grayscale(0.2);
+            image-rendering: pixelated;
+        }
+
+        .slide-caption {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: var(--bg-color);
+            border: 2px solid var(--text-main);
+            padding: 10px 15px;
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            pointer-events: auto;
+        }
+
+        .hint-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4rem;
+            animation: pulse 2s infinite;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-family: 'VT323', monospace;
+            font-size: 3rem;
+            text-align: center;
+            margin: 4rem 0 2rem 0;
+            text-transform: uppercase;
+        }
+
+        /* Asset Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            padding: 0 5%;
+            max-width: 1400px;
+            margin: 0 auto 4rem auto;
+        }
+
+        /* Card System */
+        .card {
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 0 0px 3px var(--border-color);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 0px 6px var(--accent-blue);
+            z-index: 2;
+        }
+
+        .card.best-seller { box-shadow: 0 0 0px 3px var(--accent-gold); }
+        .card.best-seller:hover { box-shadow: 0 0 0px 6px var(--accent-gold); }
+
+        .card.sale-card { box-shadow: 0 0 0px 3px var(--accent-green); }
+        .card.sale-card:hover { box-shadow: 0 0 0px 6px var(--accent-green); }
+
+        /* ESTADO: MEGA DEAL */
+        .card.mega-deal {
+            box-shadow: 0 0 0px 4px var(--accent-gold);
+            background-color: rgba(255, 183, 0, 0.05); 
+            border-radius: 12px; 
+            z-index: 1;
+        }
+        .card.mega-deal:hover {
+            box-shadow: 0 0 0px 6px var(--accent-green); 
+            transform: translateY(-8px);
+            z-index: 3;
+        }
+        .card.mega-deal .card-img-wrapper {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .card.mega-deal .card-title {
+            color: var(--accent-gold);
+        }
+        .card.mega-deal .meta-info {
+            border-left-color: var(--accent-gold);
+            background: rgba(255, 183, 0, 0.1); 
+        }[data-theme="light"] .card.mega-deal {
+            background-color: rgba(218, 168, 42, 0.15);
+        }[data-theme="light"] .card.mega-deal .meta-info {
+            background: rgba(218, 168, 42, 0.15);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: #111;
+            border-bottom: 2px solid var(--border-color);
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.3) grayscale(0.1);
+            image-rendering: pixelated;
+            transition: transform 0.5s;
+        }
+
+        .card:hover .card-img-wrapper img { transform: scale(1.1); }
+
+        .badge-container { position: absolute; top: 10px; left: 10px; z-index: 10; }
+        
+        .status-badge {
+            position: absolute;
+            top: 0; right: 0;
+            background: var(--accent-green);
+            color: #000;
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            padding: 4px 12px;
+            z-index: 10;
+            font-weight: bold;
+        }
+
+        .status-badge.gold { background: var(--accent-gold); }
+        
+        /* BADGE: MEGA */
+        .status-badge.mega {
+            background: var(--accent-gold);
+            color: #000;
+            top: -15px; 
+            right: -15px; 
+            border-radius: 8px; 
+            box-shadow: 4px 4px 0px var(--accent-green), 0 0 0 2px var(--bg-color); 
+            font-size: 1.3rem;
+            padding: 6px 16px;
+            transform: rotate(4deg);
+            border: none;
+            transition: transform 0.2s ease;
+        }
+        .card.mega-deal:hover .status-badge.mega {
+            transform: rotate(0deg) scale(1.05);
+        }
+
+        .type-badge { background: var(--text-main); color: var(--bg-color); font-family: 'VT323', monospace; font-size: 1rem; padding: 2px 8px; text-transform: uppercase; }
+        
+        .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; pointer-events: none; }
+
+        .card-title {
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem;
+            color: var(--text-main);
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .category-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1rem; }
+        .tag { font-size: 0.7rem; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--border-color); color: var(--text-muted); background: rgba(0,0,0,0.2); }
+
+        .price-container { margin-bottom: 1rem; }
+        .price-tag { font-family: 'VT323', monospace; font-size: 1.8rem; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .price-tag .old-price { font-size: 1.2rem; color: var(--accent-red); text-decoration: line-through; }
+        .price-tag .sale { color: var(--accent-green); font-weight: bold; }
+
+        .card-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+        .meta-info { list-style: none; font-size: 0.8rem; margin-bottom: 1.5rem; padding: 10px; background: rgba(0,0,0,0.1); border-left: 3px solid var(--accent-blue); }
+        .meta-info li { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dotted var(--border-color); }
+        .meta-info li span { color: var(--text-muted); }
+
+        .formats { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
+        .format-btn { font-family: 'VT323', monospace; font-size: 1rem; padding: 0.1rem 0.5rem; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-main); }
+        .format-btn.fbx { border-color: #29b6f6; color: #29b6f6; }
+        .format-btn.obj { border-color: #9ccc65; color: #9ccc65; }
+        .format-btn.blend { border-color: #ffa726; color: #ffa726; }
+        .format-btn.unity { border-color: #eeeeee; color: var(--text-main); }
+        .format-btn.unreal { border-color: #ec407a; color: #ec407a; }[data-theme="light"] .format-btn.unity { border-color: #111; color: #111; }
+
+        /* Games Showcase Carousel */
+        .showcase-wrapper { background: var(--card-bg); padding: 4rem 0; border-top: 3px solid var(--accent-blue); border-bottom: 3px solid var(--accent-blue); overflow: hidden; }
+        .games-carousel { display: flex; gap: 2rem; padding: 0 5%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; cursor: grab; }
+        .games-carousel:active { cursor: grabbing; }
+        .games-carousel::-webkit-scrollbar { display: none; }
+        
+        .game-card { 
+            flex: 0 0 80%; max-width: 400px; scroll-snap-align: center; 
+            background: var(--bg-color); 
+            transition: box-shadow 0.2s ease;
+            box-shadow: 0 0 0px 3px var(--border-color);
+            pointer-events: none; 
+        }
+
+        .game-img { height: 200px; width: 100%; background: #222; }
+        .game-img img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.3) contrast(1.2); }
+        
+        .game-info { padding: 1.5rem; }
+        .game-info h3 { font-family: 'VT323', monospace; font-size: 1.8rem; color: var(--accent-red); line-height: 1; margin-bottom: 5px; }
+        .game-info .studio { font-size: 0.75rem; font-weight: bold; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 1rem; display: block; }
+        .game-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* --- TESTIMONIALS & REVIEWS MODERNIZADO --- */
+        .testimonials { padding: 4rem 5%; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        
+        .testimonial-card { 
+            border-left: 4px solid var(--accent-red); 
+            padding: 1.5rem; 
+            background: var(--card-bg); 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .testimonial-text { 
+            font-style: italic; 
+            margin-bottom: 1.5rem; 
+            color: var(--text-muted); 
+            flex-grow: 1; 
+        }
+        
+        .testimonial-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .testimonial-author { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            font-family: 'VT323', monospace; 
+            font-size: 1.2rem; 
+            color: var(--accent-blue); 
+        }
+
+        .author-avatar {
+            width: 35px;
+            height: 35px;
+            border: 2px solid var(--border-color);
+            object-fit: cover;
+            image-rendering: pixelated;
+            filter: grayscale(0.2);
+            background-color: var(--bg-color);
+        }
+
+        .testimonial-product {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-color);
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .testimonial-product:hover {
+            border-color: var(--accent-green);
+            transform: translateX(5px);
+        }
+
+        /* Variação visual para encomenda exclusiva */
+        .testimonial-product.custom-order:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .product-thumb {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            image-rendering: pixelated;
+            filter: contrast(1.2);
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .product-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .product-label.custom-label {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .product-name {
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        /* Testimonial Social Links */
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed rgba(139, 143, 158, 0.2);
+        }
+        .social-link {
+            color: var(--text-muted);
+            transition: color 0.2s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .social-link:hover {
+            color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        .social-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Contact Area Modernization */
+        .contact-section { padding: 4rem 5%; max-width: 700px; margin: 0 auto 5rem auto; }
+        
+        .form-wrapper {
+            display: grid;
+            grid-template-areas: "inner";
+        }
+
+        .contact-form { 
+            grid-area: inner;
+            display: flex; flex-direction: column; gap: 1.5rem; 
+            transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+        }
+
+        .contact-form.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+        }
+
+        .contact-form input, .contact-form textarea, .contact-form select { 
+            width: 100%; 
+            background: var(--input-bg); 
+            border: 2px solid var(--border-color); 
+            color: var(--text-main); 
+            padding: 1rem; 
+            font-family: 'Space Mono', monospace; 
+            font-size: 1rem; 
+        }
+        
+        /* Select Styling */
+        .contact-form select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            background-image: url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M2 4L6 8L10 4" stroke="%238b8f9e" stroke-width="2" fill="none" stroke-linecap="square"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+
+        .contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus { 
+            outline: none; 
+            border-color: transparent; 
+            box-shadow: 0 0 0px 4px var(--accent-blue); 
+        }
+        
+        .btn-submit { background: transparent; color: var(--text-main); border: 2px solid var(--text-main); padding: 1rem; font-family: 'VT323', monospace; font-size: 1.5rem; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 4px 4px 0px var(--accent-red); }
+        .btn-submit:hover:not(:disabled) { background: var(--accent-blue); color: white; border-color: var(--accent-blue); box-shadow: 4px 4px 0px var(--accent-red); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .success-state {
+            grid-area: inner;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: var(--card-bg);
+            border: 2px dashed var(--accent-green);
+            padding: 3rem 2rem;
+            
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.05);
+            transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+        }
+
+        .success-state.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        .success-state svg {
+            width: 80px; height: 80px;
+            color: var(--accent-green);
+            margin-bottom: 1.5rem;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .success-state h3 {
+            font-family: 'VT323', monospace;
+            font-size: 2.5rem;
+            color: var(--accent-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .success-state p { color: var(--text-muted); }
+
+        footer { background: var(--card-bg); border-top: 2px solid var(--border-color); padding: 3rem 5% 1rem 5%; text-align: center; }
+        .footer-content { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 2rem; margin-bottom: 3rem; max-width: 1200px; margin: 0 auto; text-align: left; }
+        .footer-col h4 { font-family: 'VT323', monospace; font-size: 1.8rem; color: var(--accent-red); margin-bottom: 1rem; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 0.5rem; }
+        .footer-col ul li a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+        .footer-col ul li a:hover { color: var(--accent-blue); }
+        .footer-bottom { border-top: 1px dashed var(--border-color); padding-top: 1rem; font-size: 0.8rem; color: var(--text-muted); }
+
+        /* --- PREVIEW MODAL STYLES REIMAGINED --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(12, 13, 20, 0.85); backdrop-filter: blur(5px);
+            z-index: 999999; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .modal-window {
+            background: var(--bg-color); border: 4px solid var(--accent-blue);
+            box-shadow: 10px 10px 0px var(--bg-color), 0 0 25px rgba(0, 56, 168, 0.5);
+            width: 90%; max-width: 1100px; max-height: 90vh; overflow-y: auto;
+            position: relative; transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column;
+        }
+        .modal-overlay.active .modal-window { transform: scale(1); }
+        
+        .modal-close {
+            position: absolute; top: 15px; right: 15px; background: var(--accent-red);
+            color: #fff; border: 2px solid var(--text-main); font-family: 'VT323', monospace; font-size: 1.5rem;
+            width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20;
+            box-shadow: 2px 2px 0px #000; transition: transform 0.1s;
+        }
+        .modal-close:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #000; }
+
+        /* 1. Header de Imagem Full Width */
+        .modal-header-image { 
+            width: 100%; height: 350px; background: #000; 
+            position: relative; border-bottom: 2px solid var(--border-color); 
+        }
+        .modal-header-image img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            image-rendering: pixelated; filter: contrast(1.2); 
+        }
+        
+        /* 2. Conteúdo em Grid (Duas Colunas) */
+        .modal-content-grid { 
+            display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 3rem; padding: 2.5rem; 
+        }
+
+        /* 3. Coluna Esquerda: Markdown Renderizado */
+        .markdown-render {
+            font-family: 'Space Mono', monospace; font-size: 0.95rem;
+            color: var(--text-main); line-height: 1.7;
+        }
+        .markdown-render h2 { font-family: 'VT323', monospace; font-size: 2.2rem; color: var(--accent-gold); margin-bottom: 1rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 0.5rem; }
+        .markdown-render h3 { font-family: 'VT323', monospace; font-size: 1.6rem; color: var(--text-main); margin: 2rem 0 1rem 0; }
+        .markdown-render p { margin-bottom: 1.2rem; color: var(--text-muted); }
+        .markdown-render ul { list-style: none; margin-bottom: 1.5rem; }
+        .markdown-render li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; color: var(--text-muted); }
+        .markdown-render li::before { content: '>'; position: absolute; left: 0; color: var(--accent-green); font-weight: bold; }
+        .markdown-render strong { color: var(--text-main); }
+        .markdown-render blockquote { border-left: 4px solid var(--accent-blue); padding-left: 1.2rem; font-style: italic; color: var(--text-main); background: rgba(0, 56, 168, 0.1); padding: 1.2rem; margin-bottom: 2rem; }
+
+        /* 4. Coluna Direita Fixa */
+        .modal-right-col {
+            position: sticky; top: 0; display: flex; flex-direction: column; gap: 1rem;
+            background: var(--card-bg); padding: 2rem; border: 2px solid var(--border-color);
+            align-self: start; /* Impede que a coluna estique no grid, permitindo o sticky funcionar */
+        }
+
+        .modal-badges-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0.5rem; }
+        
+        .modal-right-col .modal-title { font-family: 'VT323', monospace; font-size: 2.2rem; color: var(--text-main); line-height: 1.1; margin-bottom: 0; }
+        
+        /* Correção do Preço no Modal (bug resolvido) */
+        .modal-price-container { font-family: 'VT323', monospace; font-size: 2.5rem; color: var(--text-main); display: flex; align-items: center; gap: 15px; margin: 0.5rem 0 1rem 0; }
+        .modal-price-container .old-price { font-size: 1.5rem; color: var(--accent-red); text-decoration: line-through; }
+        .modal-price-container .sale { color: var(--accent-green); font-weight: bold; }
+
+        .modal-actions { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; border-top: 2px dashed var(--border-color); padding-top: 1.5rem; }
+        .btn-modal { 
+            width: 100%; text-align: center; padding: 1rem; font-family: 'VT323', monospace; 
+            font-size: 1.5rem; text-transform: uppercase; cursor: pointer; transition: all 0.2s; 
+            border: 2px solid var(--text-main); text-decoration: none; 
+        }
+        .btn-buy { background: var(--accent-green); color: #000; border-color: var(--accent-green); box-shadow: 4px 4px 0px var(--bg-color); }
+        .btn-buy:hover { background: #000; color: var(--accent-green); }
+        .btn-view { background: transparent; color: var(--text-main); box-shadow: 4px 4px 0px var(--accent-blue); }
+        .btn-view:hover { background: var(--accent-blue); color: #fff; }
+
+        /* LAZY LOADING CLASSES */
+        .lazy-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, transform;
+        }
+        .lazy-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Animations */
+        @keyframes popIn { to { opacity: 1; transform: scale(1); } }
+        @keyframes chromatic-glitch { 0% { text-shadow: 3px 0 var(--accent-red), -3px 0 var(--accent-blue); } 33% { text-shadow: -3px 0 var(--accent-red), 3px 0 var(--accent-blue); } 66% { text-shadow: 2px 2px var(--accent-red), -2px -2px var(--accent-blue); } 100% { text-shadow: 3px 0 var(--accent-red), -3px 0 var(--accent-blue); } }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .modal-content-grid { grid-template-columns: 1fr; gap: 2rem; padding: 1.5rem; }
+            .modal-right-col { position: static; }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3rem; }
+            header { flex-direction: column; gap: 1rem; padding: 1rem; }
+            nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+            nav a { margin: 0; }
+            .hero-slide { height: 250px; }
+            .modal-header-image { height: 200px; }
+        }
+    </style>
 </head>
 <body>
 
+    <div class="scanlines"></div>
+
     <header>
-        <h1>PSX Factory</h1>
+        <div class="logo">PSX_FACTORY</div>
         <nav>
-            <a href="#">Assets</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
+            <a href="#packs">Packs</a>
+            <a href="#singles">Singles</a>
+            <a href="#showcase">Showcase</a>
+            <a href="#testimonials">Reviews</a>
         </nav>
+        <button class="theme-toggle" id="themeToggle">THEME // LIGHT</button>
     </header>
 
-    <section id="hero">
-        <div class="hero-content">
-            <h2>Welcome to PSX Factory</h2>
-            <p>Authentically Retro Resources for Authentic Developers.</p>
-            <a href="#products" class="cta-button">Explore Assets</a>
+    <!-- Hero Section -->
+    <section class="hero lazy-section">
+        <h1>LOW POLY. HIGH NOSTALGIA.</h1>
+        <p>A curated collection of retro 3D models with era-accurate topology and authentic texture filtering. Ready for your modern game engines.</p>
+        
+        <div class="hero-slider-container">
+            <div class="hero-slider-track" id="heroTrack">
+                <div class="hero-slide">
+                    <img src="https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?auto=format&fit=crop&q=80&w=900&h=400" alt="Space Station 3D">
+                    <div class="slide-caption">01 // SCI-FI CORRIDORS</div>
+                </div>
+                <div class="hero-slide">
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=900&h=400" alt="Retro Controller 3D">
+                    <div class="slide-caption">02 // 32-BIT HARDWARE</div>
+                </div>
+                <div class="hero-slide">
+                    <img src="https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&q=80&w=900&h=400" alt="Low Poly Geometry">
+                    <div class="slide-caption">03 // PURE GEOMETRY</div>
+                </div>
+            </div>
+        </div>
+        <div class="hint-text"><< SWIPE OR DRAG TO EXPLORE >></div>
+    </section>
+
+    <!-- 3D ASSET PACKS -->
+    <h2 class="section-title lazy-section" id="packs">3D ASSET PACKS</h2>
+    <main class="grid-container lazy-section">
+        
+        <!-- MEGA DEAL (Best Seller + Sale) -->
+        <div class="card mega-deal">
+            <div class="status-badge mega">MEGA DEAL</div>
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">BUNDLE</span></div>
+                <img src="https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Ultimate Retro Bundle">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Ultimate Retro Bundle</h3>
+                <div class="category-tags">
+                    <span class="tag">Collection</span><span class="tag">Essential</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag"><span class="old-price">$45.00</span><span class="sale">$14.99</span></div>
+                </div>
+                <p class="card-desc">The definitive 32-bit archive. Combines survival horror, sci-fi, and RPG props in one massive highly-discounted file.</p>
+                <ul class="meta-info">
+                    <li><span style="color: var(--accent-gold);">Total:</span> <strong style="color: var(--text-main);">130 Models</strong></li>
+                    <li><span style="color: var(--accent-gold);">Textures:</span> Mixed Specs</li>
+                    <li><span style="color: var(--accent-gold);">Vibe:</span> Golden Era</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn fbx">FBX</span><span class="format-btn obj">OBJ</span><span class="format-btn unreal">Unreal</span><span class="format-btn unity">Unity</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">PACK</span></div>
+                <img src="https://images.unsplash.com/photo-1505635552518-3448ff116af3?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Survival Horror Pack">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Survival Horror Vol. 1</h3>
+                <div class="category-tags">
+                    <span class="tag">Horror</span><span class="tag">Props</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag">$14.99</div>
+                </div>
+                <p class="card-desc">Everything you need to build a 1998 mansion. Creepy 3D doors, herbs, and rusty keys.</p>
+                <ul class="meta-info">
+                    <li><span>Total:</span> 45 Models</li>
+                    <li><span>Textures:</span> 128x128</li>
+                    <li><span>Vibe:</span> PSX / Dithered</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn fbx">FBX</span><span class="format-btn obj">OBJ</span><span class="format-btn blend">Blender</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card sale-card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">PACK</span></div>
+                <div class="status-badge">SALE</div>
+                <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Cyberpunk Terminal">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Y2K Cyberpunk Streets</h3>
+                <div class="category-tags">
+                    <span class="tag">Sci-Fi</span><span class="tag">Environment</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag"><span class="old-price">$19.99</span><span class="sale">$9.99</span></div>
+                </div>
+                <p class="card-desc">Bulky CRT monitors, hover-cars, and neon signs. Perfect for a futuristic shooter.</p>
+                <ul class="meta-info">
+                    <li><span>Total:</span> 60 Models</li>
+                    <li><span>Textures:</span> 256x256</li>
+                    <li><span>Vibe:</span> DreamCast / Crisp</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn fbx">FBX</span><span class="format-btn unreal">Unreal</span><span class="format-btn unity">Unity</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card best-seller">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">PACK</span></div>
+                <div class="status-badge gold">BEST SELLER</div>
+                <img src="https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="RPG Items">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">64-Bit RPG Arsenal</h3>
+                <div class="category-tags">
+                    <span class="tag">Fantasy</span><span class="tag">Weapons</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag">$12.00</div>
+                </div>
+                <p class="card-desc">3D Swords, shields, and polygonal potions with signature blurry texture filtering.</p>
+                <ul class="meta-info">
+                    <li><span>Total:</span> 25 Models</li>
+                    <li><span>Textures:</span> 64x64</li>
+                    <li><span>Vibe:</span> N64 / Bilinear</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn fbx">FBX</span><span class="format-btn obj">OBJ</span><span class="format-btn blend">Blender</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">PACK</span></div>
+                <img src="https://images.unsplash.com/photo-1511556820780-d912e42b4980?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Retro Cars">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Retro Racer Garage</h3>
+                <div class="category-tags">
+                    <span class="tag">Vehicles</span><span class="tag">Racing</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag">$18.50</div>
+                </div>
+                <p class="card-desc">Low-poly 90s vehicles, tires, and traffic cones for arcade drifting games.</p>
+                <ul class="meta-info">
+                    <li><span>Total:</span> 15 Models</li>
+                    <li><span>Textures:</span> 128x128</li>
+                    <li><span>Vibe:</span> Saturn / Unlit</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn obj">OBJ</span><span class="format-btn unity">Unity</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card sale-card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">PACK</span></div>
+                <div class="status-badge">SALE</div>
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Dungeon">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">MS-DOS Dungeon</h3>
+                <div class="category-tags">
+                    <span class="tag">Fantasy</span><span class="tag">Environment</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag"><span class="old-price">$12.00</span><span class="sale">$7.99</span></div>
+                </div>
+                <p class="card-desc">Modular walls, floors, and torches built for grid-based software rendering logic.</p>
+                <ul class="meta-info">
+                    <li><span>Total:</span> 30 Models</li>
+                    <li><span>Textures:</span> 64x64</li>
+                    <li><span>Vibe:</span> PC / Indexed</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn fbx">FBX</span><span class="format-btn unreal">Unreal</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">PACK</span></div>
+                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Office">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Corporate Dread '95</h3>
+                <div class="category-tags">
+                    <span class="tag">Modern</span><span class="tag">Props</span>
+                </div>
+                <div class="price-container">
+                    <div class="price-tag">$10.00</div>
+                </div>
+                <p class="card-desc">Cubicles, water coolers, and beige PCs. Excellent for liminal space projects.</p>
+                <ul class="meta-info">
+                    <li><span>Total:</span> 50 Models</li>
+                    <li><span>Textures:</span> 128x128</li>
+                    <li><span>Vibe:</span> PSX / Affine</li>
+                </ul>
+                <div class="formats">
+                    <span class="format-btn fbx">FBX</span><span class="format-btn blend">Blender</span><span class="format-btn unity">Unity</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SINGLE ASSETS -->
+    <h2 class="section-title lazy-section" id="singles">SINGLE ASSETS</h2>
+    <main class="grid-container lazy-section">
+        
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">SINGLE</span></div>
+                <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Sedan">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Polygonal Sedan</h3>
+                <div class="category-tags"><span class="tag">Vehicle</span><span class="tag">Rigged</span></div>
+                <div class="price-container">
+                    <div class="price-tag">$4.99</div>
+                </div>
+                <p class="card-desc">A fully rigged 90s generic sedan. Ready to be driven or destroyed.</p>
+                <ul class="meta-info">
+                    <li><span>Polys:</span> 842 Tris</li>
+                    <li><span>Textures:</span> 256x256</li>
+                    <li><span>Vibe:</span> Saturn / Unlit</li>
+                </ul>
+                <div class="formats"><span class="format-btn obj">OBJ</span><span class="format-btn unity">Unity</span></div>
+            </div>
+        </div>
+
+        <div class="card best-seller">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">SINGLE</span></div>
+                <div class="status-badge gold">BEST SELLER</div>
+                <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Typewriter">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Save Typewriter</h3>
+                <div class="category-tags"><span class="tag">Prop</span><span class="tag">Horror</span></div>
+                <div class="price-container">
+                    <div class="price-tag">$2.99</div>
+                </div>
+                <p class="card-desc">The classic save point model. Highly optimized geometry.</p>
+                <ul class="meta-info">
+                    <li><span>Polys:</span> 320 Tris</li>
+                    <li><span>Textures:</span> 128x128</li>
+                    <li><span>Vibe:</span> PSX / Dithered</li>
+                </ul>
+                <div class="formats"><span class="format-btn fbx">FBX</span><span class="format-btn blend">Blender</span></div>
+            </div>
+        </div>
+
+        <div class="card sale-card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">SINGLE</span></div>
+                <div class="status-badge">SALE</div>
+                <img src="https://images.unsplash.com/photo-1595015340640-1bc0da126e82?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Sword">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Hero's Master Sword</h3>
+                <div class="category-tags"><span class="tag">Weapon</span><span class="tag">Fantasy</span></div>
+                <div class="price-container">
+                    <div class="price-tag"><span class="old-price">$3.99</span><span class="sale">$1.99</span></div>
+                </div>
+                <p class="card-desc">A legendary blade extracted from the RPG Arsenal Pack.</p>
+                <ul class="meta-info">
+                    <li><span>Polys:</span> 112 Tris</li>
+                    <li><span>Textures:</span> 64x64</li>
+                    <li><span>Vibe:</span> N64 / Bilinear</li>
+                </ul>
+                <div class="formats"><span class="format-btn fbx">FBX</span><span class="format-btn unreal">Unreal</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">SINGLE</span></div>
+                <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="CRT Monitor">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Chunky CRT Monitor</h3>
+                <div class="category-tags"><span class="tag">Prop</span><span class="tag">Sci-Fi</span></div>
+                <div class="price-container">
+                    <div class="price-tag">$2.00</div>
+                </div>
+                <p class="card-desc">Detailed front curvature. Perfect to display game-within-a-game renders.</p>
+                <ul class="meta-info">
+                    <li><span>Polys:</span> 450 Tris</li>
+                    <li><span>Textures:</span> 256x256</li>
+                    <li><span>Vibe:</span> DreamCast / Crisp</li>
+                </ul>
+                <div class="formats"><span class="format-btn obj">OBJ</span><span class="format-btn unity">Unity</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">SINGLE</span></div>
+                <img src="https://images.unsplash.com/photo-1618422152866-511116631b11?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Barrel">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Rusty Oil Barrel</h3>
+                <div class="category-tags"><span class="tag">Prop</span><span class="tag">Explosive</span></div>
+                <div class="price-container">
+                    <div class="price-tag">$1.00</div>
+                </div>
+                <p class="card-desc">Shoot it to make it explode. The most essential retro gaming prop.</p>
+                <ul class="meta-info">
+                    <li><span>Polys:</span> 84 Tris</li>
+                    <li><span>Textures:</span> 128x128</li>
+                    <li><span>Vibe:</span> PSX / Dithered</li>
+                </ul>
+                <div class="formats"><span class="format-btn fbx">FBX</span><span class="format-btn blend">Blender</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-img-wrapper">
+                <div class="badge-container"><span class="type-badge">SINGLE</span></div>
+                <img src="https://images.unsplash.com/photo-1635830625698-3b9bd74671ca?auto=format&fit=crop&q=80&w=400&h=300" loading="lazy" alt="Helmet">
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">Space Marine Helmet</h3>
+                <div class="category-tags"><span class="tag">Character</span><span class="tag">Armor</span></div>
+                <div class="price-container">
+                    <div class="price-tag">$3.50</div>
+                </div>
+                <p class="card-desc">A brutalist helmet design from the classic PC shooter era.</p>
+                <ul class="meta-info">
+                    <li><span>Polys:</span> 256 Tris</li>
+                    <li><span>Textures:</span> 64x64</li>
+                    <li><span>Vibe:</span> PC / Indexed</li>
+                </ul>
+                <div class="formats"><span class="format-btn obj">OBJ</span><span class="format-btn unreal">Unreal</span></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Games Showcase Carousel -->
+    <section id="showcase" class="showcase-wrapper lazy-section">
+        <h2 class="section-title" style="margin-top: 0;">POWERED BY PSX FACTORY</h2>
+        <div class="hint-text" style="text-align: center;"><< SWIPE OR DRAG TO EXPLORE >></div>
+        
+        <div class="games-carousel" id="gamesTrack">
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Nightmare Depths Game"></div>
+                <div class="game-info">
+                    <h3>NIGHTMARE DEPTHS</h3>
+                    <span class="studio">BY POLYCOUNT STUDIOS</span>
+                    <p>A fixed-camera psychological horror game utilizing our Survival Horror Vol. 1 pack.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Cyber-Skate 2000 Game"></div>
+                <div class="game-info">
+                    <h3>CYBER-SKATE 2000</h3>
+                    <span class="studio">BY NEON INDIE STUDIOS</span>
+                    <p>Fast-paced arcade skater populated entirely with our Y2K Cyberpunk street props.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Quest of Polygons Game"></div>
+                <div class="game-info">
+                    <h3>QUEST OF POLYGONS</h3>
+                    <span class="studio">BY QUESTMAKER</span>
+                    <p>An N64-inspired 3D platformer featuring our RPG Arsenal pack for all loot drops.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Retro Racer Deluxe Game"></div>
+                <div class="game-info">
+                    <h3>RETRO RACER DELUXE</h3>
+                    <span class="studio">BY DRIFTDEV</span>
+                    <p>A 60fps arcade racer utilizing our Sega Saturn vehicle single assets for traffic.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1497215848143-225528d0c6fb?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Corporate Dread Game"></div>
+                <div class="game-info">
+                    <h3>CORPORATE DREAD</h3>
+                    <span class="studio">BY LIMINALWORKS</span>
+                    <p>A viral liminal space horror game built primarily using our Corporate '95 Pack.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Dungeon of Pixels Game"></div>
+                <div class="game-info">
+                    <h3>DUNGEON OF PIXELS</h3>
+                    <span class="studio">BY GRIDCRAWLER GAMES</span>
+                    <p>A first-person grid-based RPG using our MS-DOS Dungeon modular walls and items.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Space Drifter 64 Game"></div>
+                <div class="game-info">
+                    <h3>SPACE DRIFTER 64</h3>
+                    <span class="studio">BY COSMIC POLYGONS</span>
+                    <p>A sci-fi adventure game wielding our Sci-Fi Corridors and Space Marine Helmet.</p>
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-img"><img src="https://images.unsplash.com/photo-1635830625698-3b9bd74671ca?auto=format&fit=crop&q=80&w=500&h=300" loading="lazy" alt="Saturnine Mecha Game"></div>
+                <div class="game-info">
+                    <h3>SATURNINE MECHA</h3>
+                    <span class="studio">BY RETROGAMER99</span>
+                    <p>An intense mech combat simulator featuring our standalone armored units and props.</p>
+                </div>
+            </div>
+
         </div>
     </section>
 
-    <section id="products">
-        <h2>Featured Assets</h2>
-        <div class="products-grid">
+    <!-- Testimonials / REVIEWS -->
+    <section id="testimonials" class="testimonials lazy-section">
+        <h2 class="section-title" style="margin-top: 0;">TRANSMISSIONS // REVIEWS</h2>
+        <div class="test-grid">
             
-            <!-- Product Card 1 -->
-            <div class="product-card">
-                <h3>PF Desert Pack</h3>
-                <img src="https://public-files.gumroad.com/utvffnp8nnntffzimyljtg4zwbam" alt="Asset 1">
-                <div>
-                    <p>Essential low-poly desert environment pack with 7 modular assets — including rocks and cliffs — delivered in .blend, FBX and Unity formats. Designed for fast integration and performance in retro-style games, animations or marketing projects."</p>
-                    <div class="purchase-options">
-                        <a href="https://assetstore.unity.com/packages/3d/environments/landscapes/pf-desert-pack-free-3d-psx-retrostyle-304703" target="_blank" class="uas-button" alt="Coming Soon" title="Coming Soon">Unity Asset Store</a>
-                        <a href="https://www.cgtrader.com/free-3d-models/exterior/landscape/bodes-stone-collection-1" target="_blank" class="cgtrader-button">CGTrader</a>
-                        <a href="https://psxfactory.gumroad.com/l/PF_Desert_Pack" target="_blank" class="gumroad-button">Gumroad</a>
-                        <a href="#" target="_blank" class="disabled uas-button coming-soon-btn" alt="Coming Soon" title="Coming Soon">Unreal Store</a>
+            <!-- Review 1 -->
+            <div class="testimonial-card">
+                <p class="testimonial-text">"The affine texture mapping imperfections on the Horror Pack are spot on. Authentic 3D geometry!"</p>
+                <div class="testimonial-footer">
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Avatar" class="author-avatar">
+                        <span>@PolyCount_Dev</span>
+                    </div>
+                    <a href="#packs" class="testimonial-product">
+                        <img src="https://images.unsplash.com/photo-1505635552518-3448ff116af3?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Thumb" class="product-thumb">
+                        <div class="product-info">
+                            <span class="product-label">ACQUIRED:</span>
+                            <span class="product-name">Survival Horror Vol. 1</span>
+                        </div>
+                    </a>
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Website"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+                        <a href="#" class="social-link" title="Twitter/X"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg></a>
                     </div>
                 </div>
             </div>
 
-            <!-- More product cards go here -->
+            <!-- Review 2 -->
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Dropped the Cyberpunk 3D models into Unity and they worked instantly with my unlit shaders."</p>
+                <div class="testimonial-footer">
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Avatar" class="author-avatar">
+                        <span>Neon Indie Studios</span>
+                    </div>
+                    <a href="#packs" class="testimonial-product">
+                        <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Thumb" class="product-thumb">
+                        <div class="product-info">
+                            <span class="product-label">ACQUIRED:</span>
+                            <span class="product-name">Y2K Cyberpunk Streets</span>
+                        </div>
+                    </a>
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                        <a href="#" class="social-link" title="Discord"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 12a1 1 0 1 0 2 0 1 1 0 0 0 -2 0"></path><path d="M14 12a1 1 0 1 0 2 0 1 1 0 0 0 -2 0"></path><path d="M15.5 17c0 1 1.5 3 2 3c1.5 0 2.833 -1.667 3.5 -3c.667 -1.667 .5 -5.833 -1.5 -11.5c-1.457 -1.015 -3 -1.34 -4.5 -1.5l-1 2.5l-2 1l-2 -1l-1 -2.5c-1.5 .16 -3.043 .485 -4.5 1.5c-2 5.667 -2.167 9.833 -1.5 11.5c.667 1.333 2 3 3.5 3c.5 0 2 -2 2 -3"></path><path d="M7 16.5c3.5 2 6.5 2 10 0"></path></svg></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 3 (ENCOMENDA EXCLUSIVA) -->
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Requested a custom 32-bit boss monster for my indie project. They delivered perfectly. The topology is brutally optimized."</p>
+                <div class="testimonial-footer">
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Avatar" class="author-avatar">
+                        <span>@RetroGamer99</span>
+                    </div>
+                    <a href="#contactFormSection" class="testimonial-product custom-order">
+                        <img src="https://images.unsplash.com/photo-1635830625698-3b9bd74671ca?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Thumb" class="product-thumb">
+                        <div class="product-info">
+                            <span class="product-name" style="color: var(--accent-gold); margin-bottom: 3px;">EXCLUSIVE COMMISSION</span>
+                            <span class="product-label" style="margin-bottom: 0;">Project: Saturnine Mecha</span>
+                        </div>
+                    </a>
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Twitter/X"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 4 -->
+            <div class="testimonial-card">
+                <p class="testimonial-text">"The Corporate Dread pack saved my solo project. The texture UVs are mapped exactly like 1995."</p>
+                <div class="testimonial-footer">
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Avatar" class="author-avatar">
+                        <span>LiminalWorks</span>
+                    </div>
+                    <a href="#packs" class="testimonial-product">
+                        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Thumb" class="product-thumb">
+                        <div class="product-info">
+                            <span class="product-label">ACQUIRED:</span>
+                            <span class="product-name">Corporate Dread '95</span>
+                        </div>
+                    </a>
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Website"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+                        <a href="#" class="social-link" title="Facebook"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 5 -->
+            <div class="testimonial-card">
+                <p class="testimonial-text">"I bought the Polygonal Sedan single. It was fully rigged and ready to drive in Unreal Engine 5. Incredible value."</p>
+                <div class="testimonial-footer">
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Avatar" class="author-avatar">
+                        <span>@DriveDev</span>
+                    </div>
+                    <a href="#singles" class="testimonial-product">
+                        <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Thumb" class="product-thumb">
+                        <div class="product-info">
+                            <span class="product-label">ACQUIRED:</span>
+                            <span class="product-name">Polygonal Sedan</span>
+                        </div>
+                    </a>
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Twitter/X"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg></a>
+                        <a href="#" class="social-link" title="Discord"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 12a1 1 0 1 0 2 0 1 1 0 0 0 -2 0"></path><path d="M14 12a1 1 0 1 0 2 0 1 1 0 0 0 -2 0"></path><path d="M15.5 17c0 1 1.5 3 2 3c1.5 0 2.833 -1.667 3.5 -3c.667 -1.667 .5 -5.833 -1.5 -11.5c-1.457 -1.015 -3 -1.34 -4.5 -1.5l-1 2.5l-2 1l-2 -1l-1 -2.5c-1.5 .16 -3.043 .485 -4.5 1.5c-2 5.667 -2.167 9.833 -1.5 11.5c.667 1.333 2 3 3.5 3c.5 0 2 -2 2 -3"></path><path d="M7 16.5c3.5 2 6.5 2 10 0"></path></svg></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 6 -->
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Best 64-bit style weapons on the market. The bilinear filtering vibe is captured flawlessly in the models."</p>
+                <div class="testimonial-footer">
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Avatar" class="author-avatar">
+                        <span>QuestMaker</span>
+                    </div>
+                    <a href="#packs" class="testimonial-product">
+                        <img src="https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?auto=format&fit=crop&q=80&w=100&h=100" loading="lazy" alt="Thumb" class="product-thumb">
+                        <div class="product-info">
+                            <span class="product-label">ACQUIRED:</span>
+                            <span class="product-name">64-Bit RPG Arsenal</span>
+                        </div>
+                    </a>
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Website"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
-    <footer>
-        <p>© 2018-2025 PSX Factory. All rights reserved.</p>
+    <!-- Contact Section -->
+    <section class="contact-section lazy-section" id="contactFormSection">
+        <h2 class="section-title" style="margin-top: 0;">ESTABLISH CONNECTION</h2>
+        
+        <div class="form-wrapper">
+            <!-- Formulário -->
+            <form class="contact-form" id="retroContactForm">
+                <input type="text" placeholder="YOUR_NAME / ALIAS" required>
+                <input type="email" placeholder="COMMS_CHANNEL (EMAIL)" required>
+                
+                <!-- DROPDOWN NOVO -->
+                <select required id="contactSubject">
+                    <option value="" disabled selected>SELECT_SUBJECT_QUERY...</option>
+                    <option value="support">GENERAL SUPPORT // BUG_REPORT</option>
+                    <option value="commission">EXCLUSIVE COMMISSION // FREELANCE</option>
+                    <option value="business">BUSINESS INQUIRY // B2B</option>
+                    <option value="other">OTHER DATA_TRANSFER</option>
+                </select>
+
+                <textarea rows="5" placeholder="ENTER_MESSAGE_DATA..." required></textarea>
+                <button type="submit" class="btn-submit">SEND_DATA // UPLOAD</button>
+            </form>
+
+            <!-- Mensagem de Sucesso -->
+            <div class="success-state" id="successState">
+                <!-- Check Icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="16 8 10 16 8 12"></polyline>
+                </svg>
+                <h3>TRANSMISSION SUCCESSFUL</h3>
+                <p>Your data has been uploaded to the mainframe.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="lazy-section">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 2rem; text-shadow: none; margin-bottom: 10px;">PSX_FACTORY</div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 250px;">Manufacturing low-poly, retro 3D assets for the modern indie developer. No high-res, no PBR, just pure geometry.</p>
+            </div>
+            <div class="footer-col">
+                <h4>MARKETPLACES</h4><ul><li><a href="#">Itch.io Store</a></li><li><a href="#">Unity Asset Store</a></li><li><a href="#">Unreal Marketplace</a></li></ul>
+            </div>
+            <div class="footer-col">
+                <h4>COMMUNICATIONS</h4><ul><li><a href="#">Twitter / X</a></li><li><a href="#">Discord Server</a></li><li><a href="#">Patreon</a></li></ul>
+            </div>
+        </div>
+        <div class="footer-bottom">&copy; 2024 PSX Factory. All vertices snapped successfully.</div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- PRODUCT PREVIEW MODAL (FULL SCREEN HEADER + 2 COLS) -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-window">
+            <button class="modal-close" id="closeModalBtn">X</button>
+            
+            <!-- HEADER DA IMAGEM CENTRALIZADA -->
+            <div class="modal-header-image">
+                <img id="modalImg" src="" loading="lazy" alt="Product Preview">
+            </div>
+            
+            <!-- GRID DE DUAS COLUNAS -->
+            <div class="modal-content-grid">
+                
+                <!-- COLUNA ESQUERDA: MARKDOWN RENDERIZADO VISUALMENTE -->
+                <div class="modal-left-col markdown-render" id="modalMarkdown">
+                    <!-- Preenchido via JS -->
+                </div>
+                
+                <!-- COLUNA DIREITA: INFORMAÇÕES PADRÕES E BOTÕES (FIXA) -->
+                <div class="modal-right-col">
+                    <div class="modal-badges-container" id="modalBadges"></div>
+                    
+                    <h2 class="modal-title" id="modalTitle">Product Title</h2>
+                    
+                    <div id="modalTags" class="category-tags" style="margin-top: 10px;"></div>
+                    
+                    <div class="modal-price-container" id="modalPrice">$0.00</div>
+                    
+                    <ul class="meta-info" id="modalMeta" style="margin-bottom: 1rem;"></ul>
+                    
+                    <div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform:uppercase; margin-bottom:5px; display:block;">Included Formats:</span>
+                        <div class="formats" id="modalFormats"></div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button class="btn-modal btn-buy">ADD TO CART // BUY</button>
+                        <button class="btn-modal btn-view">VIEW FULL PAGE</button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- DARK/LIGHT THEME SWITCHER --- */
+        const toggleBtn = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme) {
+            htmlElement.setAttribute('data-theme', savedTheme);
+            updateButtonText(savedTheme);
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateButtonText(newTheme);
+        });
+
+        function updateButtonText(theme) {
+            toggleBtn.textContent = theme === 'dark' ? 'THEME // LIGHT' : 'THEME // DARK';
+        }
+
+        /* --- CONTACT FORM ANIMATION --- */
+        const retroContactForm = document.getElementById('retroContactForm');
+        const successState = document.getElementById('successState');
+        const submitBtn = retroContactForm.querySelector('.btn-submit');
+
+        retroContactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            submitBtn.textContent = 'TRANSMITTING...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                retroContactForm.classList.add('hidden');
+                successState.classList.add('active');
+            }, 800); 
+        });
+
+        /* --- LAZY LOADING (INTERSECTION OBSERVER) --- */
+        const lazySections = document.querySelectorAll('.lazy-section');
+        const observerOptions = { rootMargin: '0px 0px -50px 0px', threshold: 0.1 };
+
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        lazySections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        /* --- PRODUCT PREVIEW MODAL LOGIC --- */
+        const modal = document.getElementById('productModal');
+        const closeBtn = document.getElementById('closeModalBtn');
+        const productCards = document.querySelectorAll('.grid-container .card');
+
+        productCards.forEach(card => {
+            card.addEventListener('click', () => {
+                
+                // Extração de dados do card original
+                const title = card.querySelector('.card-title').innerText;
+                const priceHtml = card.querySelector('.price-tag').innerHTML;
+                const imgSrc = card.querySelector('.card-img-wrapper img').src;
+                const desc = card.querySelector('.card-desc').innerText;
+                const tagsHtml = card.querySelector('.category-tags').innerHTML;
+                const metaHtml = card.querySelector('.meta-info').innerHTML;
+                const formatsHtml = card.querySelector('.formats').innerHTML;
+
+                // Extração e limpeza dos badges (remover absolute para fluírem no container do modal)
+                const badgesNodeList = card.querySelectorAll('.status-badge, .type-badge');
+                let badgesHtml = '';
+                badgesNodeList.forEach(b => {
+                    const clone = b.cloneNode(true);
+                    clone.style.position = 'relative';
+                    clone.style.top = 'auto';
+                    clone.style.right = 'auto';
+                    clone.style.left = 'auto';
+                    clone.style.transform = 'none';
+                    clone.style.boxShadow = 'none';
+                    clone.style.border = 'none';
+                    clone.style.display = 'inline-block';
+                    badgesHtml += clone.outerHTML;
+                });
+
+                // Preencher a coluna direita (informações e botões)
+                document.getElementById('modalTitle').innerText = title;
+                document.getElementById('modalImg').src = imgSrc;
+                document.getElementById('modalPrice').innerHTML = priceHtml; // Usa a mesma estrutura de tags, corrigido via CSS
+                document.getElementById('modalBadges').innerHTML = badgesHtml;
+                document.getElementById('modalTags').innerHTML = tagsHtml;
+                document.getElementById('modalMeta').innerHTML = metaHtml;
+                document.getElementById('modalFormats').innerHTML = formatsHtml;
+
+                // Gerar o HTML Renderizado simulando a conversão de um arquivo Markdown
+                const renderedMarkdownHtml = `
+                    <h2>Project Overview</h2>
+                    <blockquote>${desc}</blockquote>
+                    
+                    <h2>Description</h2>
+                    <p>This authentic 32-bit asset has been meticulously crafted to ensure era-accurate topology and texture filtering. Perfect for indie developers looking to recreate the golden era of 90s 3D gaming.</p>
+                    <p>Whether you are building a survival horror game, a retro racer, or a nostalgic platformer, these models will snap right into your grid. <strong>No PBR, no high-poly meshes, just pure polygonal soul.</strong></p>
+                    
+                    <h3>Technical Details</h3>
+                    <ul>
+                        <li>Optimized for low draw calls and retro rendering pipelines.</li>
+                        <li>Textures mapped using authentic affine mapping techniques where applicable.</li>
+                        <li>Ready for modern engines (Unity, Unreal Engine, Godot) with custom retro shaders.</li>
+                    </ul>
+                    <p><em>File structure is neat, organized, and includes all raw source files for easy modification in your preferred 3D software.</em></p>
+                `;
+                
+                document.getElementById('modalMarkdown').innerHTML = renderedMarkdownHtml;
+
+                // Mostrar o Modal
+                modal.classList.add('active');
+            });
+        });
+
+        // Lógica para fechar o Modal
+        closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+            }
+        });
+
+        /* --- DRAG TO SCROLL LOGIC FOR PC --- */
+        function setupDragToScroll(elementId) {
+            const slider = document.getElementById(elementId);
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.style.scrollSnapType = 'none';
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.style.scrollSnapType = 'x mandatory';
+            });
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.style.scrollSnapType = 'x mandatory';
+            });
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault(); 
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        setupDragToScroll('heroTrack');
+        setupDragToScroll('gamesTrack');
+    </script>
 </body>
 </html>
